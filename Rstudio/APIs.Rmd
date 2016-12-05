@@ -1,0 +1,82 @@
+---
+title: "APIS"
+author: "Rob Hayward"
+date: "3 December 2016"
+output: html_document
+---
+#API
+[R studio webinar](https://www.rstudio.com/resources/webinars/extracting-data-from-the-web-part-1/)
+
+[Link to the materials](https://github.com/rstudio/webinars/tree/master/31-Web-APIs)
+
+An API is a set of instructions to get instruction to interact with web server that holds data.  Need to send a request to the server. The requests are formatted accoring to the API.  The writer of the software wll determine these rules. 
+
+`HTTP` is the standard format. We will use the `HTTP` package to get R to interact with some web pages. 
+
+Hyper Text Transfer Protocol. URL is a Uniform Web Location. This is made up of the protocol (http://), domain (www.host.com:), POrt (80), path (/path/to/resource?), query parameters (a=1&2b=2), Fragment ID (2#id)
+
+Requst and response are plan text files. THese text files will have a three part structure: initial line, optional headers and an optional body.  THere is a blank line between the optional headers and the body. The initial line determines whether it is a request or a response. 
+
+ 
+>Get /resources/webinars/ HTTP/1,1\
+>Host: www.rstudio.com\
+>User-Agent: libcurl/7.43.0 r-curl/2.1 httr/1.2.1\
+>Accept-Encoding: gzip, deflate
+>Accept: application/json, text/xml, application/xml, */*\
+
+
+There is no content. There are just two parts.  No body. 
+http verbs
++ get: retrive page
++ post: create a resource with body in data
++ put: reacts with existing resources
++ delete: remove
+
+## httr package
+Create a requies
+```{r}
+library(httr)
+r <- GET('http://httpbin.org/get', 
+         add_headers(Name = "Garrett"))
+```
+A body can be added to this but is usually not needed for a request. 
+
+##json  15.59
+It stands for Javascript Object Notation. It is a collection of key:value pairs. For example, 
+
+>{
+>"Title"; "Frozen"\
+>"Year": 2013\
+>"Rated: "PG"\
+>"Released": "27 Nov 2013"\
+>}
+
+This is a very common way to encode data on the web.  This will be in the form `{"a": 1, "b": 2, "c": 3}`.  These files can be converted with the `jsonlite` package.  However, `httr` will use that package in the background. 
+
+If you use the `verbose()` argument with the `httr` request, you will get the requst and the response printed to the consol. 
+
+##Response
+The response will be a similar fomat
+>HTTP/1.1 200 OK\
+>Server: nginx\
+>Date: Wed, 09 Nov 2016 14:14:47 GMT\
+>Content-Type: application/json\
+>
+>=========================================
+>body with content as raw data
+
+200 is a status code - followed by an explanation of the status code. If using the `httr` package and its functions, the response will not be the actual response but it will be parsed into an r object.  This information is stored like that of a model.  You need to use the helper function to extract the information that you need. 
+
+-`r$status_code` will return the status code
+- `http_status(r)` will give more information on the status
+- `warn_for_status()` will give a warning if not 200
+- `stop_for_status()` will stop the programme is not 200
+- `headers()` will extract the headers.  You can then access the header that you need with `headers(r)$server`
+- `r$content` will deliver the content as the raw bytes
+- `content()` will allow access to the content.  It can be delivered as `raw` or `text` or `parse` to convert to an r list. 
+
+Use `content(r, "parse"")` to retrive the data.
+
+##Example 26.07
+
+
